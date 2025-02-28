@@ -33,7 +33,7 @@ psycopg2-binary==2.9.10
 pycodestyle==2.11.1
 pycparser==2.22
 pycryptodome==3.21.0
-pydantic==2.10.6
+pydantic==2.9.9
 pydantic_core==2.27.2
 pyflakes==3.2.0
 pytest==8.3.4
