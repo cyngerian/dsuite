@@ -2,8 +2,8 @@
 # TODO: Move relevant schema here
 
 from typing import Dict
-from ...models.column import Column, Columns, Index
-from ...models.table_type import TableType
+from ..models.column import Column, Columns, Index
+from ..models.table_type import TableType
 
 game_play_schema: Dict = {
     "games": {
