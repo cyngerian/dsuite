@@ -1,0 +1,16 @@
+{
+    "version": "1",
+    "credentials": {
+        "accessKey": "minioadmin",
+        "secretKey": "minioadmin"
+    },
+    "api": {
+        "address": ":9000"
+    },
+    "console": {
+        "address": ":9001"
+    },
+    "storage": {
+        "data": "/data"
+    }
+}

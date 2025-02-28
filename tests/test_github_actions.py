@@ -1,19 +1,22 @@
-"""Test module to verify GitHub Actions workflow."""
+"""Test module for verifying GitHub Actions CI setup."""
 
-from typing import List
+from typing import Dict
 
-
-def test_style_issues() -> None:
-    """Test with deliberate style issues to verify GitHub Actions checks."""
-    test_string = "This is a test string that uses double quotes"
-    test_list = ["This now uses double quotes consistently"]
-
-    assert len(test_string) > 0
-    assert len(test_list) > 0
+import pytest
 
 
-def test_type_issues() -> int:
-    """Test with proper type annotations."""
-    values: List[int] = [1, 2, 3]
-    result = sum(values)
-    return result
+def test_ci_setup() -> None:
+    """Basic test to verify CI is working."""
+    assert True
+
+
+@pytest.mark.asyncio()  # type: ignore[misc]
+async def test_async_setup() -> None:
+    """Test to verify async test configuration."""
+    result = await async_operation()
+    assert result == {"status": "success"}
+
+
+async def async_operation() -> Dict[str, str]:
+    """Simulate an async operation."""
+    return {"status": "success"}

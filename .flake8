@@ -1,6 +1,15 @@
 [flake8]
 max-line-length = 88
-exclude = venv/*,zOLD_FILES/*
+extend-ignore = E203, W503
+exclude =
+    .git,
+    __pycache__,
+    build,
+    dist,
+    venv,
+    zOLD_FILES
+per-file-ignores =
+    __init__.py:F401
 # Quote settings
 inline-quotes = double
 multiline-quotes = double
