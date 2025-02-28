@@ -41,3 +41,7 @@ exclude_lines = [
     "pass",
     "raise ImportError",
 ]
+
+[tool.flake8]
+max-line-length = 88
+extend-ignore = ["Q000"]  # Ignore quote style enforcement
