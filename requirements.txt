@@ -2,7 +2,7 @@ annotated-types==0.7.0
 anyio==4.8.0
 argon2-cffi==23.1.0
 argon2-cffi-bindings==21.2.0
-black==25.1.0
+black==24.3.0
 certifi==2025.1.31
 cffi==1.17.1
 cfgv==3.4.0
@@ -11,7 +11,7 @@ click==8.1.8
 distlib==0.3.9
 fastapi==0.115.9
 filelock==3.17.0
-flake8==7.1.2
+flake8==7.0.0
 greenlet==3.1.1
 h11==0.14.0
 identify==2.6.8
@@ -19,7 +19,7 @@ idna==3.10
 iniconfig==2.0.0
 mccabe==0.7.0
 minio==7.2.15
-mypy==1.15.0
+mypy==1.9.0
 mypy-extensions==1.0.0
 nodeenv==1.9.1
 numpy==2.2.3
@@ -28,7 +28,7 @@ pandas==2.2.3
 pathspec==0.12.1
 platformdirs==4.3.6
 pluggy==1.5.0
-pre_commit==4.1.0
+pre_commit==3.7.0
 psycopg2-binary==2.9.10
 pycodestyle==2.12.1
 pycparser==2.22
@@ -52,3 +52,8 @@ tzdata==2025.1
 urllib3==2.3.0
 uvicorn==0.34.0
 virtualenv==20.29.2
+bandit==1.8.3
+safety==3.3.1
+pytest-cov==6.0.0
+coverage==7.6.12
+types-all==1.0.0
