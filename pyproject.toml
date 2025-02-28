@@ -16,4 +16,28 @@ testpaths = [
     "tests",
 ]
 python_files = ["test_*.py", "*_test.py"]
-asyncio_mode = "auto" 
+asyncio_mode = "auto"
+
+[tool.bandit]
+exclude_dirs = ["tests", "venv", "zOLD_FILES"]
+skips = ["B101"]  # Skip assert statements in tests
+
+[tool.coverage.run]
+source = ["."]
+omit = [
+    "tests/*",
+    "venv/*",
+    "zOLD_FILES/*",
+    "setup.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "pass",
+    "raise ImportError",
+]
