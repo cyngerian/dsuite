@@ -14,7 +14,6 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Set, Tuple
 
-from graphviz import Digraph
 from minio.error import S3Error
 
 from minio import Minio
@@ -26,6 +25,14 @@ from ..config import (
     OUTPUT_DIR,
     SAMPLE_SIZE,
 )
+
+# Try to import graphviz, but don't fail if it's not available
+try:
+    from graphviz import Digraph
+
+    HAS_GRAPHVIZ = True
+except ImportError:
+    HAS_GRAPHVIZ = False
 
 MINIO_CONFIG: dict[str, str] = {
     "endpoint": str(os.getenv("MINIO_ENDPOINT", "localhost:9000")),
@@ -269,6 +276,10 @@ class SchemaAnalyzer:
             entities: List of entities with their fields and parent relationships
             bucket_name: Name of the bucket for output file naming
         """
+        if not HAS_GRAPHVIZ:
+            print("Skipping schema visualization: graphviz not installed")
+            return
+
         dot = Digraph(comment=f"Schema for {bucket_name}")
         dot.attr(rankdir="LR")  # Left to right layout
 
@@ -302,8 +313,11 @@ class SchemaAnalyzer:
         output_path = os.path.join(
             OUTPUT_DIR, "visualizations", f"{bucket_name}_schema"
         )
-        dot.render(output_path, format="png", cleanup=True)
-        print(f"Generated schema visualization: {output_path}.png")
+        try:
+            dot.render(output_path, format="png", cleanup=True)
+            print(f"Generated schema visualization: {output_path}.png")
+        except Exception as e:
+            print(f"Error generating schema visualization: {e}")
 
     def merge_schemas(self, schemas: List[Dict[str, Set[str]]]) -> Dict[str, Set[str]]:
         """
