@@ -1,4 +1,4 @@
-from .sql import SQLGenerator
 from .migrations import MigrationGenerator
+from .sql import SQLGenerator
 
-__all__ = ['SQLGenerator', 'MigrationGenerator']
+__all__ = ["SQLGenerator", "MigrationGenerator"]

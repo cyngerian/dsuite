@@ -1,11 +1,12 @@
 # Schema definitions for play_detail tables
 # TODO: Move relevant schema here
 
-from typing import Dict
+from typing import Any, Dict
+
 from ..models.column import Column, Columns, Index
 from ..models.table_type import TableType
 
-play_detail_schema: Dict = {
+play_detail_schema: Dict[str, Dict[str, Any]] = {
     "play_events": {
         "description": "Detailed events within each play",
         "type": TableType.EVENT,
@@ -32,14 +33,14 @@ play_detail_schema: Dict = {
             "start_time": Column("TIMESTAMP"),
             "end_time": Column("TIMESTAMP"),
             "batting_order": Column("INTEGER"),
-            "created_at": Columns.CREATED_AT
+            "created_at": Columns.CREATED_AT,
         },
         "indices": [
             Index(["play_id"], name="idx_events_play"),
             Index(["type"], name="idx_events_type"),
             Index(["details_isScoringPlay"], name="idx_events_scoring"),
-            Index(["count_balls", "count_strikes"], name="idx_events_count")
-        ]
+            Index(["count_balls", "count_strikes"], name="idx_events_count"),
+        ],
     },
     "pitch_data": {
         "description": "Detailed pitch tracking data",
@@ -78,7 +79,7 @@ play_detail_schema: Dict = {
             "breaks_breakHorizontal": Columns.decimal(8, 3),
             "pitch_call": Columns.varchar(50),  # Called strike, ball, in play, etc.
             "catcher_signal": Columns.varchar(50),  # Catcher's called pitch type
-            "created_at": Columns.CREATED_AT
+            "created_at": Columns.CREATED_AT,
         },
         "indices": [
             Index(["event_id"], name="idx_pitch_event"),
@@ -86,8 +87,8 @@ play_detail_schema: Dict = {
             Index(["zone"], name="idx_pitch_zone"),
             Index(["breaks_spinRate"], name="idx_pitch_spin"),
             Index(["pitch_type"], name="idx_pitch_type"),
-            Index(["pitch_sequence"], name="idx_pitch_sequence")
-        ]
+            Index(["pitch_sequence"], name="idx_pitch_sequence"),
+        ],
     },
     "hit_data": {
         "description": "Hit data and outcomes",
@@ -105,15 +106,15 @@ play_detail_schema: Dict = {
             "coordinates_y": Columns.decimal(6, 3),
             "fielded_by": Columns.foreign_key("players"),  # Player who fielded the ball
             "hit_type": Columns.varchar(50),  # Ground ball, line drive, fly ball, etc.
-            "created_at": Columns.CREATED_AT
+            "created_at": Columns.CREATED_AT,
         },
         "indices": [
             Index(["event_id"], name="idx_hit_event"),
             Index(["launch_speed", "launch_angle"], name="idx_hit_launch"),
             Index(["total_distance"], name="idx_hit_distance"),
             Index(["fielded_by"], name="idx_hit_fielder"),
-            Index(["hit_type"], name="idx_hit_type")
-        ]
+            Index(["hit_type"], name="idx_hit_type"),
+        ],
     },
     "runners": {
         "description": "Runner movements and outcomes",
@@ -132,14 +133,14 @@ play_detail_schema: Dict = {
             "team_unearned": Column("BOOLEAN"),
             "play_index": Column("INTEGER"),
             "movement_reason": Columns.varchar(100),
-            "created_at": Columns.CREATED_AT
+            "created_at": Columns.CREATED_AT,
         },
         "indices": [
             Index(["play_id"], name="idx_runners_play"),
             Index(["player_id"], name="idx_runners_player"),
             Index(["is_scoring_event"], name="idx_runners_scoring"),
-            Index(["start_base", "end_base"], name="idx_runners_bases")
-        ]
+            Index(["start_base", "end_base"], name="idx_runners_bases"),
+        ],
     },
     "at_bat_context": {
         "description": "Contextual information for each at-bat",
@@ -161,14 +162,14 @@ play_detail_schema: Dict = {
             "previous_matchups_hits": Column("INTEGER"),
             "previous_matchups_strikeouts": Column("INTEGER"),
             "previous_matchups_walks": Column("INTEGER"),
-            "created_at": Columns.CREATED_AT
+            "created_at": Columns.CREATED_AT,
         },
         "indices": [
             Index(["play_id"], name="idx_context_play"),
             Index(["pitcher_id"], name="idx_context_pitcher"),
             Index(["batter_id"], name="idx_context_batter"),
-            Index(["inning", "inning_half"], name="idx_context_inning")
-        ]
+            Index(["inning", "inning_half"], name="idx_context_inning"),
+        ],
     },
     "game_conditions": {
         "description": "Environmental conditions during the game",
@@ -184,13 +185,13 @@ play_detail_schema: Dict = {
             "precipitation_type": Columns.varchar(50),
             "field_condition": Columns.varchar(50),
             "sky_condition": Columns.varchar(50),
-            "created_at": Columns.CREATED_AT
+            "created_at": Columns.CREATED_AT,
         },
         "indices": [
             Index(["game_id"], name="idx_conditions_game"),
             Index(["temperature"], name="idx_conditions_temp"),
-            Index(["wind_speed"], name="idx_conditions_wind")
-        ]
+            Index(["wind_speed"], name="idx_conditions_wind"),
+        ],
     },
     "reviews": {
         "description": "Review and challenge information",
@@ -205,13 +206,13 @@ play_detail_schema: Dict = {
             "review_description": Column("TEXT"),
             "review_start_time": Column("TIMESTAMP"),
             "review_end_time": Column("TIMESTAMP"),
-            "created_at": Columns.CREATED_AT
+            "created_at": Columns.CREATED_AT,
         },
         "indices": [
             Index(["play_id"], name="idx_reviews_play"),
             Index(["challenge_team_id"], name="idx_reviews_team"),
             Index(["review_type"], name="idx_reviews_type"),
-            Index(["review_result"], name="idx_reviews_result")
-        ]
-    }
+            Index(["review_result"], name="idx_reviews_result"),
+        ],
+    },
 }

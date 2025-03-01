@@ -1,64 +1,44 @@
-# Schema definitions for game_play tables
-# TODO: Move relevant schema here
+"""Game and play schema definitions."""
 
-from typing import Dict
-from ..models.column import Column, Columns, Index
-from ..models.table_type import TableType
+from typing import Any, Dict
 
-game_play_schema: Dict = {
+game_play_schema: Dict[str, Dict[str, Any]] = {
     "games": {
-        "description": "MLB games and their basic information",
-        "type": TableType.EVENT,
+        "description": "Baseball game information",
         "columns": {
-            "id": Columns.ID,
-            "game_date": Column("DATE", nullable=False),
-            "game_type": Columns.varchar(10),
-            "season": Column("INTEGER"),
-            "home_team_id": Columns.foreign_key("teams", nullable=False),
-            "away_team_id": Columns.foreign_key("teams", nullable=False),
-            "venue_id": Columns.foreign_key("venues"),
-            "status": Columns.varchar(50),
-            "start_time": Column("TIMESTAMP"),
-            "end_time": Column("TIMESTAMP"),
-            "created_at": Columns.CREATED_AT
+            "game_id": "INTEGER PRIMARY KEY",
+            "game_date": "DATE NOT NULL",
+            "home_team_id": "INTEGER REFERENCES teams(team_id)",
+            "away_team_id": "INTEGER REFERENCES teams(team_id)",
+            "venue_id": "INTEGER REFERENCES venues(venue_id)",
+            "game_type": "VARCHAR(1) NOT NULL",
+            "status": "VARCHAR(20) NOT NULL",
+            "start_time": "TIMESTAMP",
+            "end_time": "TIMESTAMP",
+            "attendance": "INTEGER",
+            "weather": "VARCHAR(100)",
+            "wind": "VARCHAR(50)",
         },
-        "indices": [
-            Index(["game_date"], name="idx_games_date"),
-            Index(["home_team_id", "away_team_id"], name="idx_games_teams"),
-            Index(["season"], name="idx_games_season"),
-            Index(["venue_id"], name="idx_games_venue")
-        ]
+        "indexes": ["game_date", "home_team_id", "away_team_id"],
     },
     "plays": {
-        "description": "Individual plays within MLB games",
-        "type": TableType.EVENT,
+        "description": "Individual play events in games",
         "columns": {
-            "play_id": Columns.ID,
-            "game_id": Columns.foreign_key("games", nullable=False),
-            "about_atBatIndex": Column("INTEGER"),
-            "about_inning": Column("INTEGER"),
-            "about_isTopInning": Column("BOOLEAN"),
-            "about_hasOut": Column("BOOLEAN"),
-            "about_isScoringPlay": Column("BOOLEAN"),
-            "about_isComplete": Column("BOOLEAN"),
-            "about_hasReview": Column("BOOLEAN"),
-            "about_startTime": Column("TIMESTAMP"),
-            "about_endTime": Column("TIMESTAMP"),
-            "result_type": Columns.varchar(50),
-            "result_event": Columns.varchar(100),
-            "result_eventType": Columns.varchar(50),
-            "result_description": Column("TEXT"),
-            "result_rbi": Column("INTEGER"),
-            "result_awayScore": Column("INTEGER"),
-            "result_homeScore": Column("INTEGER"),
-            "result_isOut": Column("BOOLEAN"),
-            "created_at": Columns.CREATED_AT
+            "play_id": "INTEGER PRIMARY KEY",
+            "game_id": "INTEGER REFERENCES games(game_id)",
+            "inning": "INTEGER NOT NULL",
+            "top_inning": "BOOLEAN NOT NULL",
+            "batter_id": "INTEGER REFERENCES players(player_id)",
+            "pitcher_id": "INTEGER REFERENCES players(player_id)",
+            "play_type": "VARCHAR(50) NOT NULL",
+            "event": "VARCHAR(100) NOT NULL",
+            "description": "TEXT",
+            "runs_scored": "INTEGER",
+            "outs_recorded": "INTEGER",
+            "rbi": "INTEGER",
+            "is_hit": "BOOLEAN",
+            "is_error": "BOOLEAN",
         },
-        "indices": [
-            Index(["game_id"], name="idx_plays_game"),
-            Index(["about_inning", "about_isTopInning"], name="idx_plays_inning"),
-            Index(["about_isScoringPlay"], name="idx_plays_scoring"),
-            Index(["about_hasReview"], name="idx_plays_review")
-        ]
-    }
+        "indexes": ["game_id", "inning", "batter_id", "pitcher_id"],
+    },
 }
