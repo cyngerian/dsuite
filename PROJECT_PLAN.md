@@ -140,11 +140,78 @@ graph TD
     end
 ```
 
+```mermaid
+graph TB
+    subgraph External
+        MLBAPI[MLB API]
+    end
+
+    subgraph Ingestion
+        AS[API Scraper]
+        SCH[Scheduler]
+        VAL[Validator]
+    end
+
+    subgraph Storage ["Storage (MinIO)"]
+        LIVE[mlb-live]
+        CURR[mlb-current]
+        HIST[mlb-historical]
+    end
+
+    subgraph Services
+        MOV[Data Mover]
+        MON[Monitoring]
+        VALID[Validation Service]
+    end
+
+    subgraph Monitoring
+        DASH[Dashboard]
+        ALERT[Alerting]
+        METRICS[Metrics Store]
+    end
+
+    %% External to Ingestion
+    MLBAPI -->|Raw Data| AS
+    SCH -->|Schedule| AS
+    AS -->|Validation| VAL
+
+    %% Ingestion to Storage
+    AS -->|Live Data| LIVE
+    VAL -->|Validated Data| CURR
+    MOV -->|Archive| HIST
+
+    %% Storage Flow
+    LIVE -->|Finalized Games| CURR
+    CURR -->|Season End| HIST
+
+    %% Monitoring Flow
+    AS -->|Metrics| METRICS
+    VAL -->|Validation Results| METRICS
+    LIVE -->|Storage Metrics| METRICS
+    CURR -->|Storage Metrics| METRICS
+    HIST -->|Storage Metrics| METRICS
+
+    %% Dashboard
+    METRICS -->|Real-time| DASH
+    METRICS -->|Alerts| ALERT
+
+    classDef external fill:#f96,stroke:#333,stroke-width:2px
+    classDef storage fill:#58a,stroke:#333,stroke-width:2px
+    classDef service fill:#7b3,stroke:#333,stroke-width:2px
+    classDef monitoring fill:#c7d,stroke:#333,stroke-width:2px
+
+    class MLBAPI external
+    class LIVE,CURR,HIST storage
+    class AS,SCH,VAL,MOV service
+    class DASH,ALERT,METRICS monitoring
+```
+
 ## 2. Phase 1: Core Infrastructure
 
 ### 1. Data Pipeline Components
 
 #### Ingestion Service
+- Implements the [detailed ingestion model](docs/INGESTION_MODEL.md)
 - Separate modules for historical and live data
 - Rate limiting and error handling
 - Metadata tracking for ingestion status
@@ -282,6 +349,85 @@ GET /api/v1/teams
    - Connection pooling
    - Load balancing
    - Performance monitoring
+
+#### Message Bus Architecture
+The system implements Apache Kafka as a message bus to facilitate real-time data flow and event-driven architecture. For detailed implementation specifications, see [Message Bus Plan](docs/MESSAGE_BUS_PLAN.md).
+
+Key Components:
+- Apache Kafka for message streaming
+- Schema Registry for message validation
+- Event-driven communication between services
+- Centralized monitoring and metrics collection
+
+```mermaid
+graph TB
+    subgraph External
+        MLBAPI[MLB API]
+    end
+
+    subgraph Message Bus
+        KAFKA[Apache Kafka]
+        SR[Schema Registry]
+        subgraph Topics
+            RAW[Raw Events]
+            VAL[Validated Events]
+            STOR[Storage Events]
+            METR[Metrics]
+        end
+    end
+
+    subgraph Services
+        ING[Ingestion Service]
+        TRANS[Transformation]
+        MIN[MinIO]
+        PG[PostgreSQL]
+        API[API Service]
+        MON[Monitoring]
+    end
+
+    %% Data Flow
+    MLBAPI -->|Raw Data| ING
+    ING -->|Game Events| RAW
+    RAW -->|Consume| TRANS
+    TRANS -->|Validated Data| VAL
+    VAL -->|Store| MIN
+    VAL -->|Store| PG
+
+    %% Storage Events
+    MIN -->|Storage Events| STOR
+    PG -->|Database Events| STOR
+
+    %% Metrics Flow
+    ING -->|Metrics| METR
+    TRANS -->|Metrics| METR
+    MIN -->|Metrics| METR
+    PG -->|Metrics| METR
+    API -->|Metrics| METR
+    METR -->|Collect| MON
+
+    %% Schema Registry
+    SR -.->|Schema Validation| RAW
+    SR -.->|Schema Validation| VAL
+    SR -.->|Schema Validation| STOR
+    SR -.->|Schema Validation| METR
+
+    classDef external fill:#f96,stroke:#333,stroke-width:2px
+    classDef messagebus fill:#58a,stroke:#333,stroke-width:2px
+    classDef service fill:#7b3,stroke:#333,stroke-width:2px
+    classDef topic fill:#c7d,stroke:#333,stroke-width:2px
+
+    class MLBAPI external
+    class KAFKA,SR messagebus
+    class ING,TRANS,MIN,PG,API,MON service
+    class RAW,VAL,STOR,METR topic
+```
+
+The message bus implementation provides:
+1. Real-time data streaming between services
+2. Reliable event processing and delivery
+3. Schema validation and evolution
+4. Centralized monitoring and metrics
+5. Scalable and fault-tolerant architecture
 
 ## 3. Development Principles
 

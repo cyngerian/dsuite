@@ -161,6 +161,9 @@ classDiagram
 - [Plan vs. Implementation Analysis](PLAN_VS_IMPLEMENTATION.md)
 - [MinIO Setup](MINIO_SETUP.md)
 - [Project Plan](PROJECT_PLAN.md)
+- [Ingestion Model](docs/INGESTION_MODEL.md)
+- [Message Bus Plan](docs/MESSAGE_BUS_PLAN.md)
+- [Goals](docs/GOALS.md)
 
 ## 🤝 Contributing
 
