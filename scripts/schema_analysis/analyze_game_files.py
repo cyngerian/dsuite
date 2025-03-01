@@ -13,16 +13,17 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Set
 
-from config import (
+from minio.error import S3Error
+
+from minio import Minio
+
+from ..config import (
     BUCKET_CURRENT,
     BUCKET_HISTORICAL,
     BUCKET_LIVE,
     OUTPUT_DIR,
     SAMPLE_SIZE,
 )
-from minio.error import S3Error
-
-from minio import Minio
 
 MINIO_CONFIG: dict[str, str] = {
     "endpoint": str(os.getenv("MINIO_ENDPOINT", "localhost:9000")),
