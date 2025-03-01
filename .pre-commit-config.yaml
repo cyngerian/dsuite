@@ -40,6 +40,8 @@ repos:
         - types-requests
         - types-setuptools
         - types-python-dateutil
+        - pytest-mypy-plugins
+        args: ["--strict", "--ignore-missing-imports"]
 
 -   repo: https://github.com/asottile/pyupgrade
     rev: v3.15.2
