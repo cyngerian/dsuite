@@ -5,9 +5,9 @@ from typing import Any, Dict, List, Set, TypeVar
 from unittest.mock import Mock, patch
 
 import pytest
-from analyze_game_files import SchemaAnalyzer
 
-from schema_analysis.analyze_game_files import (
+from .analyze_game_files import (
+    SchemaAnalyzer,
     analyze_game_files,
     extract_field_types,
     get_field_type,
