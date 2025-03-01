@@ -203,12 +203,12 @@ classDiagram
     }
 
     %% Essential relationships
-    Game *--|has 2| Team
-    Game -->|played at| Venue
-    Team o--|rosters| Player
-    Game *--|contains| Play
-    Play -->|involves| Player
-    Team -->|home field| Venue
+    Game "1" -- "2" Team : has
+    Game --> Venue : played at
+    Team o-- Player : rosters
+    Game "1" -- "*" Play : contains
+    Play --> Player : involves
+    Team --> Venue : home field
 ```
 
 ```mermaid
