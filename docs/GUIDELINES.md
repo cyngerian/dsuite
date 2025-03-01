@@ -34,7 +34,14 @@
         "  - Document event flows and schemas",
         "  - Implement proper error handling for events",
         "  - Consider event ordering and idempotency",
-        "  - Plan for event schema evolution"
+        "  - Plan for event schema evolution",
+        "Create daily implementation plan files:",
+        "  - Create file PLAN_[yyyy-MM-dd].md in docs/implementation/ for each implementation day",
+        "  - Include detailed milestones and testing plans",
+        "  - Document success criteria and risk mitigation",
+        "  - Track progress with morning and evening reviews",
+        "  - Update implementation status in PROJECT_STATUS.md",
+        "  - Cross-reference implementation plans in documentation"
     ]
 }
 ```
