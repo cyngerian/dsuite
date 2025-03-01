@@ -110,6 +110,7 @@ mypy .
 ## 📝 Documentation
 
 - [Project Status](PROJECT_STATUS.md)
+- [Current Progress](CURRENT_PROGRESS.md)
 - [MinIO Setup](MINIO_SETUP.md)
 - [Project Plan](PROJECT_PLAN.md)
 
