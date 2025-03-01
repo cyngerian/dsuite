@@ -57,26 +57,44 @@ The MLB Statistics Tracking System (STS) employs a sophisticated data ingestion 
 
 ### 1. API Scraper Service
 - **Primary Responsibilities**:
-  - MLB API interaction
+  - MLB API polling and interaction
   - Rate limiting management
   - Initial JSON validation
   - Differential updates (tracking changed sections)
   - Error handling and retries
 - **Features**:
+  - Configurable polling intervals
   - Smart caching of static game data
-  - Configurable request patterns
   - Automatic API version handling
   - Request compression and optimization
+  - Exponential backoff for errors
+  - State-based polling frequency adjustment
 
 ### 2. Scheduler Service
 - **Primary Responsibilities**:
   - Master schedule management
+  - Polling interval optimization
   - Game coverage validation
   - Request timing optimization
   - Parallel processing coordination
 - **Features**:
-  - Dynamic scheduling based on game state
-  - Adaptive request frequency
+  - Phase 1: Fixed-interval polling (30-60 seconds)
+  - Phase 2: Dynamic scheduling based on game state
+    ```python
+    POLL_INTERVALS = {
+        'pre_game': 300,     # 5 minutes
+        'warm_up': 60,       # 1 minute
+        'in_progress': 30,   # 30 seconds
+        'delayed': 120,      # 2 minutes
+        'final': 3600,       # 1 hour
+        'cancelled': 7200    # 2 hours
+    }
+    ```
+  - Phase 3: Adaptive intervals based on:
+    - Historical update patterns
+    - Current game situation (runners on base, close game, etc.)
+    - API response patterns
+    - System load and performance metrics
   - Game priority management
   - Schedule conflict resolution
   - Game delay/postponement handling
@@ -123,6 +141,80 @@ The MLB Statistics Tracking System (STS) employs a sophisticated data ingestion 
   - Resource utilization
   - Play event update frequency
   - Data validation status
+
+### 6. Bulk Load Utility
+- **Primary Responsibilities**:
+  - Historical data reconstruction
+  - Manual data ingestion
+  - Batch processing of offline data
+  - Data backfilling operations
+  - Historical data validation
+- **Features**:
+  - Parallel processing of large datasets
+  - Configurable validation rules for historical data
+  - Progress tracking and resumability
+  - Data source flexibility:
+    ```python
+    SUPPORTED_SOURCES = {
+        'mlb_statsapi': ['json', 'xml'],
+        'retrosheet': ['event', 'roster'],
+        'custom_format': ['csv', 'json', 'parquet']
+    }
+    ```
+  - Automatic schema detection and mapping
+  - Data deduplication
+  - Conflict resolution strategies:
+    - Timestamp-based
+    - Source priority
+    - Manual resolution
+  - Detailed audit logging
+- **Key Operations**:
+  - Full season reconstruction
+  - Partial season backfill
+  - Single game correction
+  - Player statistics reconciliation
+  - Team statistics validation
+- **Integration Points**:
+  - Direct write access to mlb-historical
+  - Validation pipeline integration
+  - Message bus notifications
+  - Monitoring system integration
+- **Example Usage**:
+  ```python
+  async def bulk_load_season(
+      year: int,
+      source: str,
+      options: Dict[str, Any]
+  ) -> BulkLoadResult:
+      """
+      Bulk load an entire season's worth of data.
+
+      Args:
+          year: The season year to load
+          source: Data source identifier
+          options: Configuration options for load
+
+      Returns:
+          BulkLoadResult with statistics and validation results
+      """
+      async with BulkLoadManager() as manager:
+          # Configure load options
+          manager.set_validation_rules(year)
+          manager.set_conflict_strategy(options.get('conflict_strategy'))
+
+          # Execute load operation
+          result = await manager.load_season(
+              year=year,
+              source=source,
+              parallel_games=options.get('parallel_games', 4),
+              validate_as_loaded=True
+          )
+
+          # Publish results to message bus
+          await manager.publish_load_results(result)
+
+          return result
+  ```
 
 ## Master Schedule Management
 
@@ -223,14 +315,18 @@ The system implements a message bus architecture for:
 ### Message Types
 1. **Control Messages**
    - Schedule updates
+   - Polling interval adjustments
    - Configuration changes
    - Service commands
 2. **Data Messages**
    - Game state changes
+   - Poll results
    - Data validation results
    - Storage operations
 3. **Metric Messages**
-   - Performance metrics
+   - Poll timing and frequency
+   - API response times
+   - Cache hit rates
    - Health checks
    - Resource utilization
 
@@ -240,3 +336,6 @@ The system implements a message bus architecture for:
 3. Implement circuit breakers for API calls
 4. Add data versioning in MinIO
 5. Create separate validation pipelines for different game states
+6. Implement adaptive polling based on game state
+7. Use caching to reduce API load
+8. Monitor and adjust polling frequencies based on actual update patterns

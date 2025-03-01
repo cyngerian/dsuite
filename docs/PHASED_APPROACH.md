@@ -24,6 +24,38 @@ This document outlines our phased implementation strategy for the MLB Statistics
    - Simple alerting system
    - Log aggregation
 
+### Polling Strategy Implementation
+1. **Basic Fixed-Interval Polling**
+   - Simple scheduler with fixed intervals (30-60 seconds)
+   - Direct MLB API polling
+   - Basic error handling and retries
+   - Simple metrics collection
+   - Example Implementation:
+     ```python
+     class BasicSchedulerService:
+         def __init__(self):
+             self.poll_interval = 30  # seconds
+             self.active_games = set()
+
+         async def start(self):
+             """Phase 1: Simple fixed-interval polling"""
+             while True:
+                 try:
+                     await self.update_active_games()
+                     await asyncio.sleep(self.poll_interval)
+                 except Exception as e:
+                     logger.error(f"Basic scheduler error: {e}")
+     ```
+
+2. **Initial Data Flow**
+   ```mermaid
+   graph TB
+       SCH[Scheduler Service] -->|Basic Schedule| ING[Basic Ingestion Service]
+       ING -->|Poll| MLB[MLB API]
+       ING -->|Raw Data| LIVE[mlb-live bucket]
+       ING -->|Basic Metrics| MON[Basic Monitoring]
+   ```
+
 ### Success Criteria
 - Successful ingestion of MLB game data
 - Data properly stored in MinIO
@@ -52,6 +84,45 @@ This document outlines our phased implementation strategy for the MLB Statistics
    - Rate limiting
    - Basic caching
 
+### Enhanced Polling Strategy
+1. **Adaptive Polling Implementation**
+   - Dynamic intervals based on game state
+   - Smart scheduling based on game patterns
+   - Enhanced error handling with retries
+   - Detailed metrics and monitoring
+   - Example Implementation:
+     ```python
+     class EnhancedSchedulerService:
+         def __init__(self):
+             self.game_states = {}  # Track game states
+             self.update_patterns = {}  # Learn update patterns
+
+         async def get_optimal_poll_interval(self, game_id: str) -> float:
+             """Phase 2: Adaptive polling based on game state"""
+             game_state = self.game_states.get(game_id)
+             if game_state == "pre_game":
+                 return 300  # 5 minutes
+             elif game_state == "in_progress":
+                 return self.calculate_dynamic_interval(game_id)
+             elif game_state == "final":
+                 return 3600  # 1 hour
+     ```
+
+2. **Advanced Data Flow**
+   ```mermaid
+   graph TB
+       ASCH[Advanced Scheduler] -->|Adaptive Timing| AING[Enhanced Ingestion]
+       AING -->|Smart Poll| MLB[MLB API]
+       AING -->|Validated Data| CURR[mlb-current bucket]
+       AING -->|Detailed Metrics| AMON[Advanced Monitoring]
+
+       subgraph "New Features"
+           DLQ[Dead Letter Queue]
+           VALID[Advanced Validation]
+           TRANS[Transformation Pipeline]
+       end
+   ```
+
 ### Success Criteria
 - Robust data processing pipeline
 - Comprehensive event handling
@@ -78,6 +149,39 @@ This document outlines our phased implementation strategy for the MLB Statistics
    - Disaster recovery
    - Backup strategies
    - Performance monitoring
+
+### Optimized Polling Strategy
+1. **Performance-Optimized Implementation**
+   - Intelligent caching layer
+   - Batch processing capabilities
+   - Advanced rate limiting
+   - Comprehensive monitoring and analytics
+   - Example Implementation:
+     ```python
+     class OptimizedIngestionService:
+         def __init__(self):
+             self.cache = AsyncLRUCache(maxsize=1000)
+             self.rate_limiter = SmartRateLimiter()
+             self.metrics_collector = AdvancedMetricsCollector()
+
+         async def process_game_batch(self, game_ids: List[str]):
+             """Phase 3: Optimized batch processing"""
+             async with self.rate_limiter:
+                 tasks = [
+                     self.process_single_game(game_id)
+                     for game_id in game_ids
+                 ]
+                 return await asyncio.gather(*tasks)
+     ```
+
+2. **Optimized Data Flow**
+   ```mermaid
+   graph TB
+       OSCH[Optimized Scheduler] -->|Smart Cache| OING[Optimized Ingestion]
+       OING -->|Cached Poll| MLB[MLB API]
+       OING -->|Efficient Storage| HIST[mlb-historical bucket]
+       OING -->|Advanced Analytics| OMON[Performance Monitoring]
+   ```
 
 ### Success Criteria
 - Optimized system performance
