@@ -37,6 +37,7 @@ jobs:
 
     # Requires CODECOV_TOKEN secret to be set in repository settings
     # Token can be found in Codecov repository settings
+    # Token is required to bypass rate limiting on public repositories
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
       with:
