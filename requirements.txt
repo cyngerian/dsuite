@@ -57,3 +57,4 @@ tzdata==2025.1
 urllib3==2.3.0
 uvicorn==0.27.1
 virtualenv==20.24.7
+git-lfs==1.6

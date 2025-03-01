@@ -9,7 +9,7 @@ BUCKET_LIVE = "mlb-live"
 
 # Analysis settings
 SAMPLE_SIZE = 10  # Number of files to sample from each bucket
-OUTPUT_DIR = str(Path(__file__).parent / "schema_analysis" / "docs")
+OUTPUT_DIR = str(Path(__file__).parent.parent / "docs" / "schema")
 
 # Type hint for mypy
 __all__ = [

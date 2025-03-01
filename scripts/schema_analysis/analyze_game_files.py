@@ -18,7 +18,8 @@ from minio.error import S3Error
 
 from minio import Minio
 
-from ..config import (
+# Import config from the scripts directory
+from scripts.config import (
     BUCKET_CURRENT,
     BUCKET_HISTORICAL,
     BUCKET_LIVE,
@@ -28,8 +29,6 @@ from ..config import (
 
 # Try to import graphviz, but don't fail if it's not available
 try:
-    from graphviz import Digraph
-
     HAS_GRAPHVIZ = True
 except ImportError:
     HAS_GRAPHVIZ = False
@@ -270,52 +269,102 @@ class SchemaAnalyzer:
         self, entities: List[Tuple[str, Dict[str, str], str]], bucket_name: str
     ) -> None:
         """
-        Generate a visual representation of the schema using Graphviz.
+        Generate a focused visual representation of the schema using Mermaid.
+        Shows only essential entities, key fields, and critical relationships.
 
         Args:
             entities: List of entities with their fields and parent relationships
             bucket_name: Name of the bucket for output file naming
         """
-        if not HAS_GRAPHVIZ:
-            print("Skipping schema visualization: graphviz not installed")
-            return
+        # Start Mermaid class diagram
+        mermaid_lines = [
+            "```mermaid",
+            "classDiagram",
+            "    %% MLB Game Data Schema",
+            "    %% Essential entities and relationships",
+            "    direction TB",  # Top to bottom direction for better hierarchy
+        ]
 
-        dot = Digraph(comment=f"Schema for {bucket_name}")
-        dot.attr(rankdir="LR")  # Left to right layout
+        # Define essential entities and their key fields only
+        core_entities = {
+            "Game": {
+                "fields": ["id", "type", "season", "dateTime", "status"],
+                "description": "Central entity representing a baseball game",
+            },
+            "Team": {
+                "fields": ["id", "name", "abbreviation", "league", "division"],
+                "description": "Baseball team participating in games",
+            },
+            "Player": {
+                "fields": ["id", "fullName", "position", "number"],
+                "description": "Baseball player on a team",
+            },
+            "Play": {
+                "fields": ["id", "inning", "halfInning", "result"],
+                "description": "Individual play within a game",
+            },
+            "Venue": {
+                "fields": ["id", "name", "location"],
+                "description": "Stadium where games are played",
+            },
+        }
 
-        # Add nodes for each entity
-        for entity_name, fields, _ in entities:
-            # Create HTML-like label for entity
-            label = (
-                "<"  # Start HTML-like label
-                '<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">'
-                f'<TR><TD PORT="title" BGCOLOR="#E0E0E0"><B>{entity_name}</B></TD></TR>'
-            )
+        # Add core entities with descriptions and essential fields
+        for entity_name, entity_info in core_entities.items():
+            mermaid_lines.append(f"    %% {entity_info['description']}")
+            mermaid_lines.append(f"    class {entity_name} {{")
 
-            # Add fields
-            for field_name, field_type in fields.items():
-                label += (
-                    f'<TR><TD PORT="{field_name}" ALIGN="LEFT">'
-                    f"{field_name}: {field_type}</TD></TR>"
-                )
+            # Find matching entity in our data
+            matching_entities = [
+                e for e in entities if entity_name.lower() in e[0].lower()
+            ]
+            if matching_entities:
+                entity = matching_entities[0]
+                entity_fields = entity[1]
 
-            label += "</TABLE>>"
+                # Add only essential fields that exist
+                for field in entity_info["fields"]:
+                    for actual_field, field_type in entity_fields.items():
+                        if field.lower() in actual_field.lower():
+                            clean_field = actual_field.replace(" ", "_").replace(
+                                "-", "_"
+                            )
+                            mermaid_lines.append(f"        +{field_type} {clean_field}")
+                            break
 
-            dot.node(entity_name, label=label)
+            mermaid_lines.append("    }")
+            mermaid_lines.append("")
 
-        # Add edges for relationships
-        for entity_name, _, parent in entities:
-            if parent:
-                # Create edge from parent to child
-                dot.edge(parent, entity_name)
+        # Define essential relationships with clear semantics
+        relationships = [
+            ("Game", "Team", "has 2", "*--"),
+            ("Game", "Venue", "played at", "-->"),
+            ("Team", "Player", "rosters", "o--"),
+            ("Game", "Play", "contains", "*--"),
+            ("Play", "Player", "involves", "-->"),
+            ("Team", "Venue", "home field", "-->"),
+        ]
+
+        # Add relationships with descriptive labels
+        mermaid_lines.append("    %% Essential relationships")
+        for source, target, label, notation in relationships:
+            source_entities = [e[0] for e in entities if source.lower() in e[0].lower()]
+            target_entities = [e[0] for e in entities if target.lower() in e[0].lower()]
+
+            if source_entities and target_entities:
+                mermaid_lines.append(f"    {source} {notation}|{label}| {target}")
+
+        # Close Mermaid diagram
+        mermaid_lines.append("```")
 
         # Save the graph
         output_path = os.path.join(
-            OUTPUT_DIR, "visualizations", f"{bucket_name}_schema"
+            OUTPUT_DIR, "visualizations", f"{bucket_name}_schema.md"
         )
         try:
-            dot.render(output_path, format="png", cleanup=True)
-            print(f"Generated schema visualization: {output_path}.png")
+            with open(output_path, "w") as f:
+                f.write("\n".join(mermaid_lines))
+            print(f"Generated schema visualization: {output_path}")
         except Exception as e:
             print(f"Error generating schema visualization: {e}")
 
@@ -851,29 +900,39 @@ def main() -> None:
         analyzer = SchemaAnalyzer()
         print("Testing MinIO connection...")
 
-        # Get one sample file
+        # Get sample files from MinIO
         sample_files = analyzer.get_sample_files(BUCKET_HISTORICAL)
         if not sample_files:
             print("No files found to analyze")
             return
 
-        # Process just the first file
-        file_name = sample_files[0]
-        print(f"\nProcessing {file_name}")
-        data = analyzer.read_json_file(BUCKET_HISTORICAL, file_name)
-        if not data:
-            print("No valid JSON data found")
+        schemas = []
+        for file_name in sample_files[:3]:  # Process first 3 files for a good sample
+            print(f"\nProcessing {file_name}")
+            data = analyzer.read_json_file(BUCKET_HISTORICAL, file_name)
+            if data:
+                print("Analyzing JSON structure...")
+                schema = analyzer.analyze_json_structure(data)
+                schemas.append(schema)
+
+        if not schemas:
+            print("No valid schemas generated")
             return
 
-        print("Analyzing JSON structure...")
-        schema = analyzer.analyze_json_structure(data)
+        # Merge schemas from all processed files
+        print("\nMerging schemas...")
+        merged_schema = analyzer.merge_schemas(schemas)
 
         # Generate schema
-        patterns = analyzer.identify_patterns(schema)
-        tables = analyzer.suggest_table_splits(schema, patterns)
+        print("Identifying patterns...")
+        patterns = analyzer.identify_patterns(merged_schema)
+        print("Suggesting table structure...")
+        tables = analyzer.suggest_table_splits(merged_schema, patterns)
+        print("Generating relationships...")
         relationships = analyzer.generate_relationships(tables)
 
         # Create and save SQL schema
+        print("Generating SQL schema...")
         sql_schema = analyzer.create_normalized_schema(tables, relationships)
         schema_file = os.path.join(
             OUTPUT_DIR, f"{BUCKET_HISTORICAL}_normalized_schema.sql"
@@ -881,6 +940,11 @@ def main() -> None:
         with open(schema_file, "w") as f:
             f.write(sql_schema)
         print(f"\nGenerated normalized schema: {schema_file}")
+
+        # Generate visualization
+        print("Generating schema visualization...")
+        entities = analyzer.identify_entities(merged_schema)
+        analyzer.generate_schema_graph(entities, BUCKET_HISTORICAL)
 
     except Exception as e:
         print(f"Error during analysis: {e}")
