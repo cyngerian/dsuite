@@ -35,6 +35,8 @@ jobs:
       run: |
         pytest --cov=./ --cov-report=xml
 
+    # Requires CODECOV_TOKEN secret to be set in repository settings
+    # Token can be found in Codecov repository settings
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
       with:
