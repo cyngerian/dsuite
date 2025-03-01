@@ -1,5 +1,6 @@
 """Test module for game file analysis."""
 
+import os
 from typing import Any, Dict, List, Set, TypeVar
 from unittest.mock import Mock, patch
 
@@ -13,6 +14,13 @@ from schema_analysis.analyze_game_files import (
 )
 
 T = TypeVar("T")
+
+# Fix type hints for MinIO configuration
+MINIO_CONFIG: dict[str, str] = {
+    "endpoint": str(os.getenv("MINIO_ENDPOINT", "localhost:9000")),
+    "access_key": str(os.getenv("MINIO_ACCESS_KEY", "minioadmin")),
+    "secret_key": str(os.getenv("MINIO_SECRET_KEY", "minioadmin")),
+}
 
 
 @pytest.fixture

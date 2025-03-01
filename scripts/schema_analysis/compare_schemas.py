@@ -242,8 +242,16 @@ def generate_report(coverage_by_category: Dict[str, Dict[str, Any]]) -> str:
     return "\n".join(report)
 
 
-def compare_schemas(schema1: Dict, schema2: Dict) -> List[str]:
-    """Compare two schemas and return a list of differences."""
+def compare_schemas(schema1: Dict[str, Any], schema2: Dict[str, Any]) -> List[str]:
+    """Compare two schemas and return a list of differences.
+
+    Args:
+        schema1: First schema to compare
+        schema2: Second schema to compare
+
+    Returns:
+        List of differences between the schemas
+    """
     differences = []
     for key in set(schema1.keys()) | set(schema2.keys()):
         if key not in schema1:

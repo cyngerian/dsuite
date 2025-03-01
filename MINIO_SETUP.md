@@ -61,7 +61,7 @@ from minio import Minio
 def create_minio_client() -> Minio:
     """
     Create a MinIO client instance with the current configuration.
-    
+
     Returns:
         Minio: Configured MinIO client instance
     """
@@ -128,4 +128,4 @@ healthcheck:
   timeout: 5s
   retries: 5
   start_period: 10s
-``` 
+```

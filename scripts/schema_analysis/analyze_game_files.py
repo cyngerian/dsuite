@@ -17,7 +17,6 @@ from config import (
     BUCKET_CURRENT,
     BUCKET_HISTORICAL,
     BUCKET_LIVE,
-    MINIO_CONFIG,
     OUTPUT_DIR,
     SAMPLE_SIZE,
 )
@@ -25,13 +24,20 @@ from minio.error import S3Error
 
 from minio import Minio
 
+MINIO_CONFIG: dict[str, str] = {
+    "endpoint": str(os.getenv("MINIO_ENDPOINT", "localhost:9000")),
+    "access_key": str(os.getenv("MINIO_ACCESS_KEY", "minioadmin")),
+    "secret_key": str(os.getenv("MINIO_SECRET_KEY", "minioadmin")),
+    "secure": str(os.getenv("MINIO_SECURE", "false")),
+}
+
 
 class SchemaAnalyzer:
     """Analyzes JSON schema of MLB game files."""
 
     def __init__(self) -> None:
         """Initialize the SchemaAnalyzer with MinIO client."""
-        secure = bool(MINIO_CONFIG["secure"])  # Explicitly cast to bool
+        secure = MINIO_CONFIG["secure"].lower() == "true"
         self.client = Minio(
             endpoint=MINIO_CONFIG["endpoint"],
             access_key=MINIO_CONFIG["access_key"],

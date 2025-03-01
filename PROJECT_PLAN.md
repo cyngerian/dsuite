@@ -120,15 +120,15 @@ graph TD
     MINIO --> |Raw JSON| TRANS[Transformation Service]
     TRANS --> |Raw Data| RAW[(Raw Data)]
     RAW --> |SQL Transformations| DERIVED[(Derived Stats)]
-    
+
     subgraph PostgreSQL DB
         RAW
         DERIVED
     end
-    
+
     RAW --> API[REST API Service]
     DERIVED --> API
-    
+
     subgraph Data Pipeline
         ING
         MINIO
@@ -172,7 +172,7 @@ erDiagram
     GAME_EVENTS ||--o{ PITCHES : contains
     PLAYERS ||--o{ GAME_EVENTS : participates
     TEAMS ||--o{ GAMES : plays
-    
+
     DERIVED_STATS ||--|| PLAYERS : describes
     DERIVED_STATS ||--|| TEAMS : describes
 ```
@@ -337,17 +337,17 @@ services:
     build: ./services/ingestion
     environment:
       - MLB_API_KEY=${MLB_API_KEY}
-  
+
   minio:
     image: minio/minio
     volumes:
       - minio_data:/data
-  
+
   postgres:
     image: postgres:latest
     volumes:
       - pg_data:/var/lib/postgresql/data
-  
+
   api:
     build: ./services/api
     ports:
@@ -423,4 +423,4 @@ A visualization layer built with R Shiny to provide interactive access to statis
    - Redis for caching
    - Docker for deployment
 
-Both future projects will maintain their own repositories and deployment pipelines while integrating seamlessly with the core pipeline through well-defined APIs and data contracts. 
+Both future projects will maintain their own repositories and deployment pipelines while integrating seamlessly with the core pipeline through well-defined APIs and data contracts.
