@@ -265,7 +265,7 @@
    - Configured git user settings
 
 3. Established command running practices:
-   - Documented command running format in `docs/GOALS.md`
+   - Documented command running format in `docs/GUIDELINES.md`
    - Implemented consistent command formatting
    - Set up proper shell state tracking
    - Added command explanations and output visibility

@@ -1,4 +1,4 @@
-# Baseball Statistics Tracking System - Development Goals and Rules
+# Baseball Statistics Tracking System - Development Guidelines
 
 ## Project Rules
 ```json
@@ -24,7 +24,17 @@
         "Implement proper logging and monitoring.",
         "Follow Docker best practices and optimize container builds.",
         "Write idiomatic R code following tidyverse principles for the Shiny app.",
-        "Always check Eastern time using 'TZ='America/New_York' date' before adding timestamps to documentation, especially PROJECT_STATUS.md"
+        "Always check Eastern time using 'TZ='America/New_York' date' before adding timestamps to documentation, especially PROJECT_STATUS.md",
+        "Design all components with message bus integration in mind:",
+        "  - Plan for event-driven architecture from the start",
+        "  - Define clear event schemas for all data changes",
+        "  - Implement proper event versioning",
+        "  - Consider message replay requirements",
+        "  - Plan for eventual consistency",
+        "  - Document event flows and schemas",
+        "  - Implement proper error handling for events",
+        "  - Consider event ordering and idempotency",
+        "  - Plan for event schema evolution"
     ]
 }
 ```

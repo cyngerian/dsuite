@@ -35,7 +35,7 @@
 
 ### 🟡 Partially Aligned Components
 1. **Documentation Structure**
-   - ✅ `GOALS.md` implemented
+   - ✅ `GUIDELINES.md` implemented
    - ❌ `CHANGELOG.md` not yet created
    - ❌ `architecture/` diagrams pending
 

@@ -163,7 +163,7 @@ classDiagram
 - [Project Plan](PROJECT_PLAN.md)
 - [Ingestion Model](docs/INGESTION_MODEL.md)
 - [Message Bus Plan](docs/MESSAGE_BUS_PLAN.md)
-- [Goals](docs/GOALS.md)
+- [Goals](docs/GUIDELINES.md)
 
 ## 🤝 Contributing
 

@@ -64,7 +64,7 @@ dsuite/
 │   └── workflows/               # CI/CD pipelines
 ├── docs/
 │   ├── CHANGELOG.md            # Track major changes
-│   ├── GOALS.md               # Project goals and milestones
+│   ├── GUIDELINES.md          # Project guidelines and development rules
 │   └── architecture/           # Architecture diagrams and docs
 ├── services/
 │   ├── ingestion/             # MLB API data ingestion service
