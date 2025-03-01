@@ -307,5 +307,74 @@ def main() -> None:
         print(f"Error during schema analysis: {e}")
 
 
+def get_field_type(value: Any) -> str:
+    """
+    Get the SQL field type for a given value.
+
+    Args:
+        value: The value to determine the type for
+
+    Returns:
+        str: The SQL field type name
+    """
+    if value is None:
+        return "NULL"
+    elif isinstance(value, bool):
+        return "BOOLEAN"
+    elif isinstance(value, int):
+        return "INTEGER"
+    elif isinstance(value, float):
+        return "FLOAT"
+    elif isinstance(value, str):
+        return "VARCHAR"
+    elif isinstance(value, list):
+        return "ARRAY"
+    elif isinstance(value, dict):
+        return "JSONB"
+    else:
+        return "VARCHAR"  # Default to VARCHAR for unknown types
+
+
+def extract_field_types(data: List[Dict[str, Any]]) -> Dict[str, str]:
+    """
+    Extract field types from a list of dictionaries.
+
+    Args:
+        data: List of dictionaries to analyze
+
+    Returns:
+        Dict[str, str]: Mapping of field names to their SQL types
+    """
+    field_types: Dict[str, str] = {}
+
+    for item in data:
+        for field, value in item.items():
+            field_type = get_field_type(value)
+            if field in field_types:
+                # If field already exists, only update if current type is NULL
+                if field_types[field] == "NULL":
+                    field_types[field] = field_type
+            else:
+                field_types[field] = field_type
+
+    return field_types
+
+
+async def analyze_game_files(data_path: str) -> Dict[str, Dict[str, Any]]:
+    """
+    Analyze game files in the specified directory.
+
+    Args:
+        data_path: Path to the directory containing game files
+
+    Returns:
+        Dict[str, Dict[str, Any]]: Analysis results containing game and play data
+    """
+    return {
+        "games": {},  # Placeholder for game analysis
+        "plays": {},  # Placeholder for play analysis
+    }
+
+
 if __name__ == "__main__":
     main()

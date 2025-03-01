@@ -6,7 +6,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from .analyze_game_files import (
+from scripts.schema_analysis import (
     SchemaAnalyzer,
     analyze_game_files,
     extract_field_types,
@@ -94,7 +94,7 @@ def test_merge_schemas() -> None:
     assert merged["field3"] == {"bool"}
 
 
-@patch("analyze_game_files.Minio")
+@patch("scripts.schema_analysis.analyze_game_files.Minio")
 def test_get_sample_files(mock_minio_class: Mock) -> None:
     """Test sample file retrieval."""
     # Create mock objects
