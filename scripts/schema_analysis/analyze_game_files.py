@@ -337,22 +337,28 @@ class SchemaAnalyzer:
 
         # Define essential relationships with clear semantics
         relationships = [
-            ("Game", "Team", "has 2", "*--"),
-            ("Game", "Venue", "played at", "-->"),
-            ("Team", "Player", "rosters", "o--"),
-            ("Game", "Play", "contains", "*--"),
-            ("Play", "Player", "involves", "-->"),
-            ("Team", "Venue", "home field", "-->"),
+            ("Game", "Team", "has", "1", "2", "--"),
+            ("Game", "Venue", "played at", "", "", "-->"),
+            ("Team", "Player", "rosters", "", "", "o--"),
+            ("Game", "Play", "contains", "1", "*", "--"),
+            ("Play", "Player", "involves", "", "", "-->"),
+            ("Team", "Venue", "home field", "", "", "-->"),
         ]
 
         # Add relationships with descriptive labels
         mermaid_lines.append("    %% Essential relationships")
-        for source, target, label, notation in relationships:
+        for source, target, label, source_mult, target_mult, notation in relationships:
             source_entities = [e[0] for e in entities if source.lower() in e[0].lower()]
             target_entities = [e[0] for e in entities if target.lower() in e[0].lower()]
 
             if source_entities and target_entities:
-                mermaid_lines.append(f"    {source} {notation}|{label}| {target}")
+                relationship_line = f"    {source}"
+                if source_mult and target_mult:
+                    relationship_line += f' "{source_mult}" {notation} "{target_mult}"'
+                else:
+                    relationship_line += f" {notation}"
+                relationship_line += f" {target} : {label}"
+                mermaid_lines.append(relationship_line)
 
         # Close Mermaid diagram
         mermaid_lines.append("```")
