@@ -111,6 +111,7 @@ mypy .
 
 - [Project Status](PROJECT_STATUS.md)
 - [Current Progress](CURRENT_PROGRESS.md)
+- [Plan vs. Implementation Analysis](PLAN_VS_IMPLEMENTATION.md)
 - [MinIO Setup](MINIO_SETUP.md)
 - [Project Plan](PROJECT_PLAN.md)
 
